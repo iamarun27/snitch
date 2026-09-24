@@ -1,6 +1,6 @@
 import { body, validationResult } from "express-validator";
 
-function validateRequet(req, res, next) {
+function validateRequest(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -25,5 +25,11 @@ export const validateRegisterUser = [
     .withMessage("Full name must be at least 3 characters long"),
   body("isSeller").isBoolean().withMessage("isSeller must be a boolean value"),
 
-  validateRequet,
+  validateRequest,
+];
+
+export const validateLoginUser = [
+  body("email").isEmail().withMessage("Invalid email format"),
+  body("password").notEmpty().withMessage("Password is required"),
+  validateRequest,
 ];
