@@ -22,7 +22,27 @@ export async function getAllProducts() {
   return response.data;
 }
 
-export async function getProductById(productId){
-  const response = await productApiInstance.get(`/detail/${productId}`)
-  return response.data
+export async function getProductById(productId) {
+  const response = await productApiInstance.get(`/detail/${productId}`);
+  return response.data;
+}
+
+export async function addProductVariant(productId, newProductVariant) {
+
+  console.log(newProductVariant)
+  const formData = new FormData();
+
+  newProductVariant.images.forEach((images) => {
+    formData.append(`images`, images.file);
+  });
+
+  formData.append("Stock", newProductVariant.stock);
+  formData.append("Price", newProductVariant.price);
+  formData.append("attributes", JSON.parse(newProductVariant.attributes));
+
+  const response = await productApiInstance.post(
+    `/${productId}/variants`,
+    formData,
+  );
+  return response.data;
 }
