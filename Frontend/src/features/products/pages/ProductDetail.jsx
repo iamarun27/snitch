@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { useProduct } from "../hooks/useProduct";
+import { useCart } from "../../cart/hook/useCart";
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -8,6 +9,8 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const navigate = useNavigate();
   const { handleGetProductById } = useProduct();
+
+  const { handleAddItem } = useCart();
 
   async function fetchProductDetails() {
     try {
@@ -38,6 +41,8 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  console.log(product);
 
   const images =
     product.images && product.images.length > 0
@@ -255,6 +260,12 @@ const ProductDetail = () => {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = "#1b1c1a";
                     e.currentTarget.style.color = "#fbf9f6";
+                  }}
+                  onClick={() => {
+                    handleAddItem({
+                      productId: product._id,
+                      variantId: activeVariant._id,
+                    });
                   }}
                 >
                   Add to Cart
