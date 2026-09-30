@@ -6,6 +6,7 @@ import { useCart } from "../../cart/hook/useCart";
 const ProductDetail = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
+
   const [selectedImage, setSelectedImage] = useState(0);
   const navigate = useNavigate();
   const { handleGetProductById } = useProduct();
@@ -64,30 +65,6 @@ const ProductDetail = () => {
           fontFamily: "'Inter', sans-serif",
         }}
       >
-        {/* ── Navbar ── */}
-        <nav
-          className="px-8 lg:px-16 xl:px-24 pt-10 pb-6 flex items-center justify-between border-b"
-          style={{ borderColor: "#e4e2df" }}
-        >
-          <Link
-            to="/"
-            className="text-sm font-medium tracking-[0.35em] uppercase hover:opacity-80 transition-opacity"
-            style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              color: "#C9A96E",
-            }}
-          >
-            Snitch.
-          </Link>
-          <button
-            onClick={() => navigate(-1)}
-            className="text-[10px] uppercase tracking-[0.2em] font-medium transition-colors hover:text-[#C9A96E]"
-            style={{ color: "#7A6E63" }}
-          >
-            Return to Archive
-          </button>
-        </nav>
-
         <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24 pt-12 lg:pt-20">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-start">
             {/* ── LEFT: Image Gallery ── */}
