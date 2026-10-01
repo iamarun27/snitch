@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useProduct } from "../hooks/useProduct";
-import { Link, useNavigate } from "react-router";
-
+import { Link } from "react-router";
+import { useNavigate } from "react-router";
 
 const Home = () => {
   const products = useSelector((state) => state.product.products);
   const user = useSelector((state) => state.auth.user);
   const { handleGetAllProducts } = useProduct();
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,8 +30,6 @@ const Home = () => {
           fontFamily: "'Inter', sans-serif",
         }}
       >
-       
-
         <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24">
           {/* ── Hero / Header ── */}
           <div className="pt-20 pb-20 text-center flex flex-col items-center">

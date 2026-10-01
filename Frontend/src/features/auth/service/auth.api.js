@@ -19,7 +19,6 @@ export async function register({
     fullname,
     isSeller,
   });
-
   return response.data;
 }
 
@@ -34,5 +33,6 @@ export async function login({ email, password }) {
 
 export async function getMe() {
   const response = await authApiInstance.get("/me");
+
   return response.data;
 }

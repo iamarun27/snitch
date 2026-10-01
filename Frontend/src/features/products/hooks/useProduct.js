@@ -3,13 +3,14 @@ import {
   getSellerProduct,
   getAllProducts,
   getProductById,
-  addProductVariant
-} from "../services/product.api.js";
+  addProductVariant,
+} from "../service/product.api";
 import { useDispatch } from "react-redux";
-import { setSellerProducts, setProducts } from "../state/product.slice.js";
+import { setSellerProducts, setProducts } from "../state/product.slice";
 
 export const useProduct = () => {
   const dispatch = useDispatch();
+
   async function handleCreateProduct(formData) {
     const data = await createProduct(formData);
     return data.product;
@@ -31,9 +32,10 @@ export const useProduct = () => {
     return data.product;
   }
 
-  async function handleAddProductVariant(productId,newProductVariant){
-    const data = await addProductVariant(productId,newProductVariant)
-    return data
+  async function handleAddProductVariant(productId, newProductVariant) {
+    const data = await addProductVariant(productId, newProductVariant);
+
+    return data;
   }
 
   return {
@@ -41,6 +43,6 @@ export const useProduct = () => {
     handleGetSellerProduct,
     handleGetAllProducts,
     handleGetProductById,
-    handleAddProductVariant
+    handleAddProductVariant,
   };
 };

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useProduct } from '../hooks/useProduct';
-import { useParams } from 'react-router';
+import React, { useEffect, useState } from "react";
+import { useProduct } from "../hooks/useProduct";
+import { useParams } from "react-router";
 
 // Helper icons
 const PlusIcon = () => (
@@ -19,7 +19,6 @@ const PlusIcon = () => (
     <line x1="5" y1="12" x2="19" y2="12"></line>
   </svg>
 );
-
 const TrashIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -45,15 +44,15 @@ const SellerProductDetails = () => {
 
   // UI state for inputs to maintain focus
   const [attributeInputs, setAttributeInputs] = useState([
-    { key: '', value: '' },
+    { key: "", value: "" },
   ]);
 
   // New variant state
   const [newVariant, setNewVariant] = useState({
     images: [],
     stock: 0,
-    attributes: {},
-    price: { amount: '', currency: 'INR' },
+    attributes: {}, // Strictly an object
+    price: { amount: "", currency: "INR" },
   });
 
   const { productId } = useParams();
@@ -61,19 +60,16 @@ const SellerProductDetails = () => {
 
   async function fetchProductDetails() {
     setLoading(true);
-
     try {
       const data = await handleGetProductById(productId);
       const prod = data?.product || data;
-
       setProduct(prod);
-
       // Initialize variants locally
       if (prod?.variants) {
         setLocalVariants(prod.variants);
       }
     } catch (error) {
-      console.error('Failed to fetch product details', error);
+      console.error("Failed to fetch product details", error);
     } finally {
       setLoading(false);
     }
@@ -86,12 +82,10 @@ const SellerProductDetails = () => {
   // Handlers for modifying existing variant stock natively
   const handleStockChange = (index, newStock) => {
     const updatedVariants = [...localVariants];
-
     updatedVariants[index] = {
       ...updatedVariants[index],
       stock: Number(newStock),
     };
-
     setLocalVariants(updatedVariants);
   };
 
@@ -99,11 +93,10 @@ const SellerProductDetails = () => {
   const handleAddNewVariant = async () => {
     // Validate required at least one attribute to be filled
     const hasValidAttribute = attributeInputs.some(
-      (attr) => attr.key.trim() && attr.value.trim()
+      (attr) => attr.key.trim() && attr.value.trim(),
     );
-
     if (!hasValidAttribute) {
-      alert('At least one valid attribute is required.');
+      alert("At least one valid attribute is required.");
       return;
     }
 
@@ -122,7 +115,7 @@ const SellerProductDetails = () => {
       attributes: cleanAttributes,
       price: newVariant.price.amount
         ? Number(newVariant.price.amount)
-        : undefined,
+        : undefined, // price is optional
     };
 
     setLocalVariants([...localVariants, variantToSave]);
@@ -131,79 +124,58 @@ const SellerProductDetails = () => {
     await handleAddProductVariant(productId, variantToSave);
 
     // Reset form
-    setAttributeInputs([{ key: '', value: '' }]);
-
+    // Note: should ideally revoke old object URLs as well to prevent memory leaks if it were a long-lived SPA
+    setAttributeInputs([{ key: "", value: "" }]);
     setNewVariant({
       images: [],
       stock: 0,
       attributes: {},
-      price: { amount: '', currency: 'INR' },
+      price: { amount: "", currency: "INR" },
     });
   };
 
   const handleAddAttribute = () => {
-    setAttributeInputs((prev) => [
-      ...prev,
-      { key: '', value: '' },
-    ]);
+    setAttributeInputs((prev) => [...prev, { key: "", value: "" }]);
   };
 
   const handleAttributeChange = (index, field, value) => {
     const updatedInputs = [...attributeInputs];
-
     updatedInputs[index][field] = value;
-
     setAttributeInputs(updatedInputs);
 
     // Synchronize to object format
     const newAttrsObj = {};
-
     updatedInputs.forEach((attr) => {
-      if (attr.key.trim() !== '') {
+      if (attr.key.trim() !== "") {
         newAttrsObj[attr.key.trim()] = attr.value;
       }
     });
-
-    setNewVariant((prev) => ({
-      ...prev,
-      attributes: newAttrsObj,
-    }));
+    setNewVariant((prev) => ({ ...prev, attributes: newAttrsObj }));
   };
 
   const handleRemoveAttribute = (index) => {
-    const updatedInputs = attributeInputs.filter(
-      (_, i) => i !== index
-    );
-
+    const updatedInputs = attributeInputs.filter((_, i) => i !== index);
     setAttributeInputs(updatedInputs);
 
     // Synchronize to object format
     const newAttrsObj = {};
-
     updatedInputs.forEach((attr) => {
-      if (attr.key.trim() !== '') {
+      if (attr.key.trim() !== "") {
         newAttrsObj[attr.key.trim()] = attr.value;
       }
     });
-
-    setNewVariant((prev) => ({
-      ...prev,
-      attributes: newAttrsObj,
-    }));
+    setNewVariant((prev) => ({ ...prev, attributes: newAttrsObj }));
   };
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-
     if (!files.length) return;
 
     const availableSlots = 7 - newVariant.images.length;
     const filesToAdd = files.slice(0, availableSlots);
 
     if (files.length > availableSlots) {
-      alert(
-        `You can only upload up to 7 images. ${filesToAdd.length} added.`
-      );
+      alert(`You can only upload up to 7 images. ${filesToAdd.length} added.`);
     }
 
     const newImageObjects = filesToAdd.map((file) => ({
@@ -217,24 +189,16 @@ const SellerProductDetails = () => {
     }));
 
     // Clear the input so identical files can be selected again if needed
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const handleRemoveImage = (index) => {
     const imageToRemove = newVariant.images[index];
-
     if (imageToRemove?.previewUrl) {
       URL.revokeObjectURL(imageToRemove.previewUrl);
     }
-
-    const updatedImages = newVariant.images.filter(
-      (_, i) => i !== index
-    );
-
-    setNewVariant((prev) => ({
-      ...prev,
-      images: updatedImages,
-    }));
+    const updatedImages = newVariant.images.filter((_, i) => i !== index);
+    setNewVariant((prev) => ({ ...prev, images: updatedImages }));
   };
 
   if (loading) {
@@ -259,7 +223,7 @@ const SellerProductDetails = () => {
       <header className="sticky top-0 z-10 bg-[#fbf9f6]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
         <h1 className="font-serif text-xl tracking-wide uppercase">
           {product.title?.substring(0, 20)}
-          {product.title?.length > 20 ? '...' : ''}
+          {product.title?.length > 20 ? "..." : ""}
         </h1>
       </header>
 
@@ -281,7 +245,6 @@ const SellerProductDetails = () => {
                 </div>
               )}
             </div>
-
             {/* Thumbnails */}
             {product.images && product.images.length > 1 && (
               <div className="flex gap-2 mt-2 overflow-x-auto">
@@ -301,11 +264,9 @@ const SellerProductDetails = () => {
             <h2 className="font-serif text-4xl md:text-5xl leading-tight mb-4 uppercase">
               {product.title}
             </h2>
-
             <p className="text-[#6e6258] text-lg mb-6 leading-relaxed max-w-md">
               {product.description}
             </p>
-
             <div className="text-2xl tracking-wide font-light mb-8">
               {product.price?.amount} {product.price?.currency}
             </div>
@@ -318,7 +279,6 @@ const SellerProductDetails = () => {
             <h3 className="font-serif text-3xl uppercase">
               Variants & Inventory
             </h3>
-
             {!isAddingVariant && (
               <button
                 onClick={() => setIsAddingVariant(true)}
@@ -333,10 +293,7 @@ const SellerProductDetails = () => {
           {isAddingVariant && (
             <div className="bg-[#ffffff] p-6 md:p-8 mb-12 shadow-[0_20px_40px_rgba(27,28,26,0.04)]">
               <div className="flex justify-between items-center mb-6">
-                <h4 className="font-serif text-xl uppercase">
-                  Create Variant
-                </h4>
-
+                <h4 className="font-serif text-xl uppercase">Create Variant</h4>
                 <button
                   onClick={() => setIsAddingVariant(false)}
                   className="text-[#7f7668] hover:text-[#1b1c1a] text-sm uppercase tracking-wider cursor-pointer"
@@ -353,13 +310,9 @@ const SellerProductDetails = () => {
                     <label className="block text-sm uppercase tracking-wider text-[#6e6258] mb-3">
                       Attributes (e.g. Size, Color) *
                     </label>
-
                     <div className="space-y-3">
                       {attributeInputs.map((attr, index) => (
-                        <div
-                          key={index}
-                          className="flex gap-2 items-center"
-                        >
+                        <div key={index} className="flex gap-2 items-center">
                           <input
                             type="text"
                             placeholder="Key (e.g., Size)"
@@ -367,13 +320,12 @@ const SellerProductDetails = () => {
                             onChange={(e) =>
                               handleAttributeChange(
                                 index,
-                                'key',
-                                e.target.value
+                                "key",
+                                e.target.value,
                               )
                             }
                             className="w-1/2 bg-transparent border-b border-[#d0c5b5] py-2 focus:outline-none focus:border-[#745a27] placeholder:text-[#d0c5b5]"
                           />
-
                           <input
                             type="text"
                             placeholder="Value (e.g., M)"
@@ -381,18 +333,15 @@ const SellerProductDetails = () => {
                             onChange={(e) =>
                               handleAttributeChange(
                                 index,
-                                'value',
-                                e.target.value
+                                "value",
+                                e.target.value,
                               )
                             }
                             className="w-1/2 bg-transparent border-b border-[#d0c5b5] py-2 focus:outline-none focus:border-[#745a27] placeholder:text-[#d0c5b5]"
                           />
-
                           {attributeInputs.length > 1 && (
                             <button
-                              onClick={() =>
-                                handleRemoveAttribute(index)
-                              }
+                              onClick={() => handleRemoveAttribute(index)}
                               className="text-[#ba1a1a] p-2 hover:bg-[#ffdad6] transition-colors cursor-pointer"
                             >
                               <TrashIcon />
@@ -401,7 +350,6 @@ const SellerProductDetails = () => {
                         </div>
                       ))}
                     </div>
-
                     <button
                       onClick={handleAddAttribute}
                       className="mt-3 text-[#745a27] text-sm uppercase tracking-wider flex items-center gap-1 hover:text-[#5a4312] cursor-pointer"
@@ -416,7 +364,6 @@ const SellerProductDetails = () => {
                       <label className="block text-sm uppercase tracking-wider text-[#6e6258] mb-2">
                         Initial Stock
                       </label>
-
                       <input
                         type="number"
                         value={newVariant.stock}
@@ -429,12 +376,10 @@ const SellerProductDetails = () => {
                         className="w-full bg-transparent border-b border-[#d0c5b5] py-2 focus:outline-none focus:border-[#745a27]"
                       />
                     </div>
-
                     <div className="w-1/2">
                       <label className="block text-sm uppercase tracking-wider text-[#6e6258] mb-2">
                         Price Amount (Optional)
                       </label>
-
                       <input
                         type="number"
                         value={newVariant.price.amount}
@@ -460,7 +405,6 @@ const SellerProductDetails = () => {
                     <label className="block text-sm uppercase tracking-wider text-[#6e6258]">
                       Image Upload (Max 7, Optional)
                     </label>
-
                     <span className="text-xs text-[#7f7668]">
                       {newVariant.images.length}/7
                     </span>
@@ -478,11 +422,8 @@ const SellerProductDetails = () => {
                             alt="Preview"
                             className="w-full h-full object-cover"
                           />
-
                           <button
-                            onClick={() =>
-                              handleRemoveImage(index)
-                            }
+                            onClick={() => handleRemoveImage(index)}
                             className="absolute top-1 right-1 bg-white/80 p-1 text-[#ba1a1a] hover:bg-white transition-colors cursor-pointer"
                           >
                             <TrashIcon />
@@ -502,9 +443,8 @@ const SellerProductDetails = () => {
                         className="block w-full text-sm text-[#6e6258]
                           file:mr-4 file:py-2 file:px-4
                           file:border-0 file:bg-[#f5f3f0] file:text-[#1b1c1a]
-                          hover:file:bg-[#e4e2df] file:cursor-pointer
-                          file:uppercase file:text-xs file:tracking-wider
-                          file:font-serif cursor-pointer"
+                          hover:file:bg-[#e4e2df] file:cursor-pointer file:uppercase file:text-xs file:tracking-wider file:font-serif
+                          cursor-pointer"
                       />
                     </div>
                   )}
@@ -537,8 +477,7 @@ const SellerProductDetails = () => {
                   <div className="px-6 flex gap-4 h-24 mb-4">
                     {/* Variant Thumb */}
                     <div className="w-16 h-20 bg-[#f5f3f0] shrink-0">
-                      {variant.images &&
-                      variant.images.length > 0 ? (
+                      {variant.images && variant.images.length > 0 ? (
                         <img
                           src={variant.images[0].url}
                           alt="Variant"
@@ -550,29 +489,25 @@ const SellerProductDetails = () => {
                         </div>
                       )}
                     </div>
-
                     {/* Attributes */}
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap gap-2 mb-2">
-                        {Object.entries(
-                          variant.attributes || {}
-                        ).map(([key, val]) => (
-                          <span
-                            key={key}
-                            className="bg-[#f5f3f0] px-2 py-1 text-xs uppercase tracking-wider text-[#4d463a]"
-                          >
-                            <span className="text-[#a8a094]">
-                              {key}:
-                            </span>{' '}
-                            {val}
-                          </span>
-                        ))}
+                        {Object.entries(variant.attributes || {}).map(
+                          ([key, val]) => (
+                            <span
+                              key={key}
+                              className="bg-[#f5f3f0] px-2 py-1 text-xs uppercase tracking-wider text-[#4d463a]"
+                            >
+                              <span className="text-[#a8a094]">{key}:</span>{" "}
+                              {val}
+                            </span>
+                          ),
+                        )}
                       </div>
-
                       <div className="text-sm font-light">
                         {variant.price?.amount
                           ? `${variant.price.amount} ${variant.price.currency}`
-                          : 'Base Price'}
+                          : "Base Price"}
                       </div>
                     </div>
                   </div>
@@ -582,17 +517,11 @@ const SellerProductDetails = () => {
                     <label className="text-sm text-[#6e6258] uppercase tracking-wider">
                       Current Stock
                     </label>
-
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
                         value={variant.stock || 0}
-                        onChange={(e) =>
-                          handleStockChange(
-                            idx,
-                            e.target.value
-                          )
-                        }
+                        onChange={(e) => handleStockChange(idx, e.target.value)}
                         className="w-20 bg-transparent border-b border-[#d0c5b5] py-1 text-right focus:outline-none focus:border-[#745a27] font-serif text-lg"
                       />
                     </div>
